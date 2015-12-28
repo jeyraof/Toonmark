@@ -8,6 +8,6 @@ class NaverComicParser(BaseHTMLParser):
         pass
 
 
-class NaverWebtoonParser(BaseHTMLParser):
+class NaverNovelParser(BaseHTMLParser):
     def after_parse(self, soup):
         pass

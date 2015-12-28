@@ -3,6 +3,6 @@
 from crawler.parser.base import BaseHTMLParser
 
 
-class DaumWebtoonParser(BaseHTMLParser):
+class DaumComicParser(BaseHTMLParser):
     def after_parse(self, soup):
         pass
