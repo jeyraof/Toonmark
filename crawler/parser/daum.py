@@ -4,5 +4,13 @@ from crawler.parser.base import BaseHTMLParser
 
 
 class DaumComicParser(BaseHTMLParser):
-    def after_parse(self, soup):
+    @property
+    def url(self):
+        return 1
+
+    @property
+    def selector(self):
+        return 1
+
+    def after_parse(self, parsed):
         pass
