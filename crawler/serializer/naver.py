@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from crawler.serializer.base import BaseSerializer
+from crawler.utils import get_url_query_dict
 
 
 class NaverComicSerializer(BaseSerializer):
     @property
     def work_list(self):
-        def extract_work(item):
+        def extract_work(tag):
             work = {
                 'model': 'work',
-                'thumb': '',
-                'title': '',
-                'author': '',
-                'is_updated': True or False,
+                'uid': get_url_query_dict(tag.select_one('a.right_arr').href).get('titleId', None),
+                'author': tag.select_one('.sub_info').string.strip() or None,
+
+                'thumb': tag.select_one('.im_inbr > img').get('src', None),
+                'title': tag.select_one('.toon_name span').string.strip() or None,
+                'is_updated': True if tag.select_one('.ico_up') else False,
             }
             work.update(self.extra_data)
             return work
@@ -20,13 +23,12 @@ class NaverComicSerializer(BaseSerializer):
 
     @property
     def episode_list(self):
-        def extract_episode(item):
+        def extract_episode(tag):
             episode = {
                 'model': 'episode',
-                'thumb': '',
-                'title': '',
-                'author': '',
-                'is_updated': True or False,
+                'thumb': tag.select_one('.im_inbr > img').get('src', None),
+                'title': tag.select_one('.toon_name span').string.strip() or None,
+                'is_updated': True if tag.select_one('.ico_up') else False,
             }
             episode.update(self.extra_data)
             return episode
@@ -43,7 +45,7 @@ class NaverComicSerializer(BaseSerializer):
 class NaverNovelSerializer(BaseSerializer):
     @property
     def work_list(self):
-        def extract_work(item):
+        def extract_work(tag):
             work = {
                 'model': 'work',
                 'thumb': '',
@@ -57,7 +59,7 @@ class NaverNovelSerializer(BaseSerializer):
 
     @property
     def episode_list(self):
-        def extract_episode(item):
+        def extract_episode(tag):
             episode = {
                 'model': 'episode',
                 'thumb': '',
