@@ -10,8 +10,11 @@ class BaseParser:
     encoding = 'utf-8'
     parser = 'lxml'  # one of ['html.paraer', 'lxml', 'html5lib']
 
-    def __init__(self):
-        pass
+    def __init__(self, work=None, wall=None):
+        if work:
+            self.work = work
+        elif wall:
+            self.wall = wall
 
     @property
     def url(self):
