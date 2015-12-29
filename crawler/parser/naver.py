@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from crawler.parser.base import BaseHTMLParser
+from crawler.serializer import NaverComicSerializer, NaverNovelSerializer
 
 
 class NaverComicParser(BaseHTMLParser):
@@ -52,7 +53,15 @@ class NaverComicParser(BaseHTMLParser):
         raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
 
     def after_parse(self, parsed):
-        return
+        if self.work:
+            serializer = NaverComicSerializer(target='episode_list', soup=parsed, extra_data={'work': self.work})
+            return serializer.serialize()
+
+        elif self.wall:
+            serializer = NaverComicSerializer(target='work_list', soup=parsed)
+            return serializer.serialize()
+
+        raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
 
 
 class NaverNovelParser(BaseHTMLParser):
@@ -104,4 +113,12 @@ class NaverNovelParser(BaseHTMLParser):
         raise AttributeError("'NaverNovelParser' object must have one of wall or work attribute.")
 
     def after_parse(self, parsed):
-        return
+        if self.work:
+            serializer = NaverNovelSerializer(target='episode_list', soup=parsed, extra_data={'work': self.work})
+            return serializer.serialize()
+
+        elif self.wall:
+            serializer = NaverNovelSerializer(target='work_list', soup=parsed)
+            return serializer.serialize()
+
+        raise AttributeError("'NaverNovelParser' object must have one of wall or work attribute.")
