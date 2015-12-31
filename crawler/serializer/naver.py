@@ -9,10 +9,9 @@ class NaverComicSerializer(BaseSerializer):
     def work_list(self):
         def extract_work(tag):
             work = {
+                'author': tag.select_one('.sub_info').string.strip() or None,
                 'model': 'work',
                 'uid': get_url_query_dict(tag.select_one('a.right_arr').get('href')).get('titleId', None),
-                'author': tag.select_one('.sub_info').string.strip() or None,
-
                 'thumb': tag.select_one('.im_inbr > img').get('src', None),
                 'title': tag.select_one('.toon_name span').string.strip() or None,
                 'is_updated': True if tag.select_one('.ico_up') else False,
@@ -26,6 +25,7 @@ class NaverComicSerializer(BaseSerializer):
         def extract_episode(tag):
             episode = {
                 'model': 'episode',
+                'uid': get_url_query_dict(tag.select_one('.lst > a').get('href')).get('no', None),
                 'thumb': tag.select_one('.im_inbr > img').get('src', None),
                 'title': tag.select_one('.toon_name span').string.strip() or None,
                 'is_updated': True if tag.select_one('.ico_up') else False,
@@ -34,7 +34,10 @@ class NaverComicSerializer(BaseSerializer):
             return episode
         return map(extract_episode, self.soup)
 
-    def serialize(self):
+    def serialize(self, item_only=0):
+        if item_only:
+            return getattr(self, self.target)
+
         return {
             'service': 'naver',
             'type': 'comic',
@@ -71,7 +74,10 @@ class NaverNovelSerializer(BaseSerializer):
             return episode
         return map(extract_episode, self.soup)
 
-    def serialize(self):
+    def serialize(self, item_only=0):
+        if item_only:
+            return getattr(self, self.target)
+
         return {
             'service': 'naver',
             'type': 'comic',

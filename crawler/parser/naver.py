@@ -2,6 +2,7 @@
 
 from crawler.parser.base import BaseHTMLParser
 from crawler.serializer import NaverComicSerializer, NaverNovelSerializer
+from crawler.utils import build_query_string
 
 
 class NaverComicParser(BaseHTMLParser):
@@ -34,28 +35,61 @@ class NaverComicParser(BaseHTMLParser):
 
     @property
     def url(self):
+        if not self.work and not self.wall:
+            raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
+
         host = 'http://m.comic.naver.com/webtoon'
 
-        if self.work:
-            return '{host}/list.nhn?titleId={work}'.format(host=host, work=self.work)
-        elif self.wall:
-            return '{host}/weekday.nhn?week={wall}&sort=Update&order=Update'.format(host=host, wall=self.wall)
+        if self.work:  # in case: work
+            template = host + '/list.nhn?{query}'
+            queries = {'titleId': self.work}
 
-        raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
+            if self.initial and self.page:
+                url = []
+                for p in xrange(1, self.page + 1):
+                    dummy_queries = queries.copy()
+                    dummy_queries.update({'page': p})
+                    url.append(template.format(query=build_query_string(**dummy_queries)))
+            elif self.page:
+                queries.update({'page': self.page})
+                url = template.format(query=build_query_string(**queries))
+            else:
+                url = template.format(query=build_query_string(**queries))
+
+        else:  # in case: wall
+            template = host + '/weekday.nhn?{query}'
+            queries = {'week': self.wall, 'sort': 'Update', 'order': 'Update'}
+            url = template.format(query=build_query_string(**queries))
+
+        return url
 
     @property
     def selector(self):
+        if not self.work and not self.wall:
+            raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
+
         if self.work:
             return 'ul#pageList > li'
         elif self.wall:
             return 'ul#pageList > li'
 
-        raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
-
     def after_parse(self, parsed):
         if self.work:
-            serializer = NaverComicSerializer(target='episode_list', soup=parsed, extra_data={'work': self.work})
-            return serializer.serialize()
+            if isinstance(parsed, list):
+                serialized = None
+                for parsed_one in parsed:
+                    serializer = NaverComicSerializer(target='episode_list',
+                                                      soup=parsed_one,
+                                                      extra_data={'work': self.work})
+                    if not serialized:
+                        serialized = serializer.serialize()
+                    else:
+                        serialized['episode_list'].extend(serializer.serialize(item_only=1))
+                return serialized
+
+            else:
+                serializer = NaverComicSerializer(target='episode_list', soup=parsed, extra_data={'work': self.work})
+                return serializer.serialize()
 
         elif self.wall:
             serializer = NaverComicSerializer(target='work_list', soup=parsed)
