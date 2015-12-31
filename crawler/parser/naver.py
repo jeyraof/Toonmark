@@ -69,31 +69,35 @@ class NaverComicParser(BaseHTMLParser):
             raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
 
         if self.work:
-            return 'ul#pageList > li'
+            return '#form'
         elif self.wall:
             return 'ul#pageList > li'
 
     def after_parse(self, parsed):
         if self.work:
-            if isinstance(parsed, list):
-                serialized = None
-                for parsed_one in parsed:
+            serialized = None
+            for form_list in parsed:
+                if form_list:
+                    form = form_list[0]
+                    total_page = form.select_one('.u_pg3_pg')
+                    if total_page:
+                        total_page = int(total_page.text.split('/')[1])
                     serializer = NaverComicSerializer(target='episode_list',
-                                                      soup=parsed_one,
-                                                      extra_data={'work': self.work})
+                                                      soup=form.select('ul#pageList > li'),
+                                                      extra_data_wrap={'total_page': total_page},
+                                                      extra_data_item={'work': self.work})
+
                     if not serialized:
                         serialized = serializer.serialize()
                     else:
                         serialized['episode_list'].extend(serializer.serialize(item_only=1))
-                return serialized
-
-            else:
-                serializer = NaverComicSerializer(target='episode_list', soup=parsed, extra_data={'work': self.work})
-                return serializer.serialize()
+            return serialized
 
         elif self.wall:
-            serializer = NaverComicSerializer(target='work_list', soup=parsed)
-            return serializer.serialize()
+            if parsed:
+                serializer = NaverComicSerializer(target='work_list', soup=parsed[0])
+                return serializer.serialize()
+            return {}
 
         raise AttributeError("'NaverComicParser' object must have one of wall or work attribute.")
 

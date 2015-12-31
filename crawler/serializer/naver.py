@@ -16,7 +16,7 @@ class NaverComicSerializer(BaseSerializer):
                 'title': tag.select_one('.toon_name span').string.strip() or None,
                 'is_updated': True if tag.select_one('.ico_up') else False,
             }
-            work.update(self.extra_data)
+            work.update(self.extra_data_item)
             return work
         return map(extract_work, self.soup)
 
@@ -30,7 +30,7 @@ class NaverComicSerializer(BaseSerializer):
                 'title': tag.select_one('.toon_name span').string.strip() or None,
                 'is_updated': True if tag.select_one('.ico_up') else False,
             }
-            episode.update(self.extra_data)
+            episode.update(self.extra_data_item)
             return episode
         return map(extract_episode, self.soup)
 
@@ -38,11 +38,13 @@ class NaverComicSerializer(BaseSerializer):
         if item_only:
             return getattr(self, self.target)
 
-        return {
+        serialized = {
             'service': 'naver',
             'type': 'comic',
             self.target: getattr(self, self.target),
         }
+        serialized.update(self.extra_data_wrap)
+        return serialized
 
 
 class NaverNovelSerializer(BaseSerializer):
