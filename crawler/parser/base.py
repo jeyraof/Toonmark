@@ -33,12 +33,12 @@ class BaseParser:
 
 class BaseHTMLParser(BaseParser):
     def parse(self, method='GET'):
-        html = getattr(requests, str.lower(method))(self.url)
+        html = getattr(requests, str.lower(method))(self.url).text
         soup = BeautifulSoup(html, self.parser)
         return self.after_parse(soup.select(self.selector))
 
 
 class BaseJSONParser(BaseParser):
     def parse(self, method='GET'):
-        json_string = getattr(requests, str.lower(method))(self.url)
+        json_string = getattr(requests, str.lower(method))(self.url).json
         return self.after_parse(json_string.json())
