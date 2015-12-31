@@ -10,7 +10,7 @@ class NaverComicSerializer(BaseSerializer):
         def extract_work(tag):
             work = {
                 'model': 'work',
-                'uid': get_url_query_dict(tag.select_one('a.right_arr').href).get('titleId', None),
+                'uid': get_url_query_dict(tag.select_one('a.right_arr').get('href')).get('titleId', None),
                 'author': tag.select_one('.sub_info').string.strip() or None,
 
                 'thumb': tag.select_one('.im_inbr > img').get('src', None),
