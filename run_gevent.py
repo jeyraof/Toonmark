@@ -26,7 +26,10 @@ def crawl_work(queue, db):
     while 1:
         wall = queue.get()
         for work in wall.get('work_list', []):
-            pprint.pprint(NaverComicParser(work=work.get('uid')).parse())
+            # work : work dict
+            # TODO: work 를 db에 넣고 initial 일경우와 아닐경우 판단
+            pprint.pprint(work)
+            # pprint.pprint(NaverComicParser(work=work.get('uid')).parse())
 
 
 def main():
@@ -40,5 +43,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # pprint.pprint(NaverComicParser(work=602921).parse())
+    # pprint.pprint(NaverComicParser(wall='thu').parse())
     main()
-
