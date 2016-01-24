@@ -2,7 +2,7 @@
 
 from crawler.parser.base import BaseHTMLParser
 from crawler.serializer import NaverComicSerializer, NaverNovelSerializer
-from crawler.utils import build_query_string
+from crawler.utils import build_query_string, get_day_string
 
 
 class NaverComicParser(BaseHTMLParser):
@@ -72,6 +72,10 @@ class NaverComicParser(BaseHTMLParser):
             return '#form'
         elif self.wall:
             return 'ul#pageList > li'
+
+    @staticmethod
+    def wall_format(wall):
+        return get_day_string(wall)[:3]
 
     def after_parse(self, parsed):
         if self.work:

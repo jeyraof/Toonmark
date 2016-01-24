@@ -27,6 +27,10 @@ class BaseParser:
     def selector(self):
         raise NotImplementedError
 
+    @staticmethod
+    def wall_format(wall):
+        raise NotImplementedError
+
     def parse(self, method='GET'):
         raise NotImplementedError
 
